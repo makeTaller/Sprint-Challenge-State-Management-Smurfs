@@ -1,45 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
 import "./App.css";
-import axios from "axios";
-import Smurfs from "./Smurfs";
-import AddSmurf from "./AddSmurf";
-import SmurfContext from "../contexts/SmurfContext";
+import { fetchSmurf } from "../actions/action";
+import Smurform from "./SmurfForm";
+import SmurfList from "./SmurfList";
 
-export default function App() {
-  const [smurfs, setSmurfs] = useState([]);
-
+const App = ({ fetchSmurf }) => {
   useEffect(() => {
-    axios
-      .get("http://localhost:3333/smurfs")
-      .then(res => {
-        console.log(res.data);
-        setSmurfs(res.data);
-      })
-      .catch(err => {
-        console.error("server error", err);
-      });
-  }, []);
+    fetchSmurf();
+  }, [fetchSmurf]);
 
-  const addSmurf = smurf => {
-    axios
-      .post("http://localhost:3333/smurfs", smurf)
-      .then(res => {
-        console.log('post res', res);
-        setSmurfs(res.data);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
-
-  console.log("smurfs", smurfs);
   return (
     <div className="App">
-      <SmurfContext.Provider value={{ smurfs }}>
-        <h1>Welcome to</h1>
-        <Smurfs />
-        <AddSmurf addSmurf={addSmurf} />
-      </SmurfContext.Provider>
+      <h1>SMURFS! 2.0 W/ Redux</h1>
+      <Smurform />
+      <SmurfList />
     </div>
   );
-}
+};
+const mapStateToProps = (state) => {
+  return {
+    message: state.message,
+    smurfs: state.smurfs,
+  };
+};
+
+export default connect(mapStateToProps, { fetchSmurf })(App);
